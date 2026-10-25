@@ -1,0 +1,16 @@
+{
+  "name": "outlook-mail-detector",
+  "version": "1.0.0",
+  "private": true,
+  "description": "메일을 보낼 때 본문의 특정 텍스트를 찾아 외부 API로 전송하는 Outlook 추가기능",
+  "scripts": {
+    "start": "node server.js",
+    "validate": "office-addin-manifest validate manifest.xml && office-addin-manifest validate manifest.dev.xml"
+  },
+  "dependencies": {
+    "office-addin-dev-certs": "^2.0.0"
+  },
+  "devDependencies": {
+    "office-addin-manifest": "^2.0.0"
+  }
+}
