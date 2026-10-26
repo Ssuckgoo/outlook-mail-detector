@@ -8,6 +8,21 @@ var PATTERN = /#요청:(\S+)/g;
 // 찾은 내용을 보낼 API 주소 (테스트용: server.js 의 가짜 API)
 var TARGET_API = "https://localhost:3000/api/hook";
 
+// API 가 이 시간 안에 응답하지 않으면 실패로 처리 (Outlook 이 무한히 기다리지 않도록)
+var TIMEOUT_MS = 10000;
+
+function withTimeout(promise, ms) {
+  return new Promise(function (resolve, reject) {
+    var timer = setTimeout(function () {
+      reject(new Error(ms / 1000 + "초 동안 API 응답이 없습니다 (" + TARGET_API + ")"));
+    }, ms);
+    promise.then(
+      function (value) { clearTimeout(timer); resolve(value); },
+      function (err) { clearTimeout(timer); reject(err); }
+    );
+  });
+}
+
 // Office 의 콜백 방식 getAsync 를 Promise 로 바꿔주는 도우미
 function getAsync(target, options) {
   return new Promise(function (resolve, reject) {
@@ -56,11 +71,11 @@ function onMessageSendHandler(event) {
           sentAt: new Date().toISOString()
         };
 
-        return fetch(TARGET_API, {
+        return withTimeout(fetch(TARGET_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        }).then(function (res) {
+        }), TIMEOUT_MS).then(function (res) {
           if (!res.ok) {
             throw new Error("HTTP " + res.status);
           }

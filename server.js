@@ -57,6 +57,7 @@ function handleStatic(req, res) {
 devCerts.getHttpsServerOptions().then((options) => {
   https
     .createServer(options, (req, res) => {
+      console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
       if (req.url.startsWith("/api/hook")) {
         if (req.method === "OPTIONS") {
           sendCors(res);
