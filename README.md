@@ -24,6 +24,7 @@
 | `docs/launchevent.js` | 실제 로직 (본문 검사 + API 호출). **패턴과 API 주소는 맨 위에서 수정** |
 | `docs/commands.html` | 새 Outlook / 웹 Outlook이 launchevent.js를 불러올 때 쓰는 빈 페이지 |
 | `docs/taskpane.html` | 추가기능 소개 페이지 |
+| `docs/index.html` | GitHub Pages 기본 주소(`/`)로 들어오면 소개 페이지로 이동 |
 | `docs/assets/` | 아이콘 |
 | `server.js` | 개발용 HTTPS 서버 + 가짜 API (`/api/hook`, 받은 내용을 콘솔에 출력) |
 
