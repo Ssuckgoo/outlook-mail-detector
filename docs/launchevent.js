@@ -23,6 +23,21 @@ function withTimeout(promise, ms) {
   });
 }
 
+// 디버그: 실행 단계를 서버 터미널에 남긴다 (빈 문자열이면 끔)
+// 이미지 요청은 CORS 영향을 받지 않아 fetch 가 막혀도 서버까지 도달한다. 클래식 Outlook(Image 없음)에서는 콘솔에만 남긴다.
+var TRACE_URL = "https://localhost:3000/trace";
+
+function trace(step) {
+  console.log("[감지기] " + step);
+  try {
+    if (TRACE_URL && typeof Image !== "undefined") {
+      new Image().src = TRACE_URL + "?step=" + encodeURIComponent(step) + "&t=" + Date.now();
+    }
+  } catch (e) {}
+}
+
+trace("0. 스크립트 로드됨");
+
 // Office 의 콜백 방식 getAsync 를 Promise 로 바꿔주는 도우미
 function getAsync(target, options) {
   return new Promise(function (resolve, reject) {
@@ -52,11 +67,13 @@ function findMatches(text) {
 }
 
 function onMessageSendHandler(event) {
+  trace("1. 보내기 이벤트 시작");
   var item = Office.context.mailbox.item;
 
   getAsync(item.body, Office.CoercionType.Text)
     .then(function (body) {
       var matches = findMatches(body);
+      trace("2. 본문 읽음, 찾은 값: " + matches.join(","));
       if (matches.length === 0) {
         // 찾는 텍스트가 없으면 평소처럼 바로 보낸다
         event.completed({ allowEvent: true });
@@ -71,11 +88,13 @@ function onMessageSendHandler(event) {
           sentAt: new Date().toISOString()
         };
 
+        trace("3. API 호출: " + TARGET_API);
         return withTimeout(fetch(TARGET_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         }), TIMEOUT_MS).then(function (res) {
+          trace("4. API 응답: " + res.status);
           if (!res.ok) {
             throw new Error("HTTP " + res.status);
           }
@@ -84,6 +103,7 @@ function onMessageSendHandler(event) {
       });
     })
     .catch(function (err) {
+      trace("실패: " + (err && err.message ? err.message : err));
       // 실패하면 발송을 멈추고 "그래도 보내기" 선택창을 띄운다
       event.completed({
         allowEvent: false,
@@ -94,3 +114,9 @@ function onMessageSendHandler(event) {
 
 // manifest.xml 의 FunctionName 과 실제 함수를 연결
 Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+trace("0-1. 함수 연결 완료");
+
+// 웹/새 Outlook 은 Office 초기화(onReady)가 끝나야 보내기 이벤트 함수를 호출한다
+Office.onReady(function (info) {
+  trace("0-2. Office 준비됨: " + (info && info.host));
+});

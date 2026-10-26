@@ -57,7 +57,15 @@ function handleStatic(req, res) {
 devCerts.getHttpsServerOptions().then((options) => {
   https
     .createServer(options, (req, res) => {
-      console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
+      const time = new Date().toLocaleTimeString();
+      // 추가기능의 실행 단계 신호 (launchevent.js 의 trace)
+      if (req.url.startsWith("/trace")) {
+        const step = new URL(req.url, "https://localhost").searchParams.get("step");
+        console.log(`[${time}] ▶ ${step}`);
+        res.writeHead(204).end();
+        return;
+      }
+      console.log(`[${time}] ${req.method} ${req.url}`);
       if (req.url.startsWith("/api/hook")) {
         if (req.method === "OPTIONS") {
           sendCors(res);
