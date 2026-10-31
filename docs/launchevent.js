@@ -5,8 +5,10 @@
 // 본문에서 찾을 텍스트 규칙: "#요청:A001" -> "A001"
 var PATTERN = /#요청:(\S+)/g;
 
-// 찾은 내용을 보낼 API 주소 (테스트용: server.js 의 가짜 API)
-var TARGET_API = "https://localhost:3000/api/hook";
+// 찾은 내용을 보낼 API 주소
+//  - 외부 테스트용: webhook.site (받은 요청을 웹에서 확인, 2026-11-07 만료)
+//  - 로컬 테스트용: "https://localhost:3000/api/hook" (server.js 의 가짜 API, manifest.dev.xml 과 함께 사용)
+var TARGET_API = "https://webhook.site/e4022ef2-a425-4e7b-88ba-fb3ce5d4f0d0";
 
 // API 가 이 시간 안에 응답하지 않으면 실패로 처리 (Outlook 이 무한히 기다리지 않도록)
 var TIMEOUT_MS = 10000;
@@ -25,7 +27,8 @@ function withTimeout(promise, ms) {
 
 // 디버그: 실행 단계를 서버 터미널에 남긴다 (빈 문자열이면 끔)
 // 이미지 요청은 CORS 영향을 받지 않아 fetch 가 막혀도 서버까지 도달한다. 클래식 Outlook(Image 없음)에서는 콘솔에만 남긴다.
-var TRACE_URL = "https://localhost:3000/trace";
+// GitHub Pages 에서 실행될 때는 브라우저가 localhost 요청을 막으므로 꺼둔다. 로컬 디버깅 시 "https://localhost:3000/trace"
+var TRACE_URL = "";
 
 function trace(step) {
   console.log("[감지기] " + step);
