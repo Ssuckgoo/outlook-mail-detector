@@ -56,6 +56,7 @@
         <Host xsi:type="MailHost">
           <Runtimes>
             <!-- 새 Outlook / 웹 Outlook 은 HTML 을, 클래식 Outlook 은 JS 파일을 직접 불러온다 -->
+            <!-- 기본값은 HTML를 사용하고, 구버전이면 JS 전용 엔진을 사용하니깐 그땐 Override 에서 사용해라 -->
             <Runtime resid="WebViewRuntime.Url">
               <Override type="javascript" resid="JSRuntime.Url"/>
             </Runtime>
